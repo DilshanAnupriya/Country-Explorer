@@ -357,7 +357,7 @@ const CountryDetails = () => {
                 </div>
             </div>
 
-            {/* Add custom CSS for animations */}
+            {/*  animations */}
             <style>
                 {`
                     @keyframes fadeIn {

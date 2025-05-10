@@ -12,7 +12,8 @@ const LetterNav = ({ letters, activeLetter, onLetterClick }) => {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onLetterClick(letter)}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 ${
+                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold
+                         text-lg transition-all duration-300 ${
                             activeLetter === letter
                                 ? 'bg-blue-600 text-white shadow-lg'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -77,7 +78,7 @@ const CountryList = ({ countries }) => {
         }
     }, [sortedLetters, activeLetter]);
 
-    // Handle letter click
+
     const handleLetterClick = (letter) => {
         setActiveLetter(letter);
         setCurrentPage(1); // Reset to first page when changing letter

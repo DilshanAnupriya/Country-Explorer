@@ -6,7 +6,7 @@ axios.defaults.baseURL = 'http://localhost:3000';
 // Add a request interceptor for authentication
 axios.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -26,7 +26,7 @@ axios.interceptors.response.use(
         if (error.response && (error.response.status === 401 || error.response.status === 403)) {
             // Handle token expiration - could redirect to login or refresh token
             if (error.response.data.message === 'Token expired') {
-                localStorage.removeItem('token');
+                sessionStorage.removeItem('token');
                 window.location.href = '/login';
             }
         }

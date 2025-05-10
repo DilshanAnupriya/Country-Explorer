@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 
 //api
@@ -11,10 +11,25 @@ import {
 import HeroSection from '../components/HeroSection';
 import SearchAndFilter from '../components/SearchAndFilter';
 import ResultsSection from '../components/ResultsSection';
-import HeroMain from '../components/HeroMain';
+
+// Debounce function to delay API calls
+const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
 
 const Home = () => {
-
     const [countries, setCountries] = useState([]);
     const [filteredCountries, setFilteredCountries] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -23,6 +38,9 @@ const Home = () => {
     const [selectedRegion, setSelectedRegion] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+    // Use debounce for search term to avoid API calls on every keystroke
+    const debouncedSearchTerm = useDebounce(searchTerm, 500); // 500ms delay
 
     // Extract unique regions and languages for filter dropdowns
     const regions = [...new Set(countries.map(country => country.region).filter(Boolean))];
@@ -57,47 +75,47 @@ const Home = () => {
         fetchCountries();
     }, []);
 
-    // Handle search and filter
-    useEffect(() => {
-        const applyFilters = async () => {
-            setLoading(true);
-            try {
-                let result = countries;
+    // Function to filter countries
+    const filterCountries = useCallback(async (search, region, language) => {
+        setLoading(true);
+        try {
+            let result = countries;
 
-                // Apply search if provided
-                if (searchTerm) {
-                    result = await searchCountriesByName(searchTerm);
-                }
-
-                // Apply region filter if selected
-                if (selectedRegion && result.length > 0) {
-                    result = result.filter(country => country.region === selectedRegion);
-                }
-
-                // Apply language filter if selected
-                if (selectedLanguage && result.length > 0) {
-                    result = result.filter(country => {
-                        if (!country.languages) return false;
-                        return Object.values(country.languages).some(
-                            lang => lang === selectedLanguage
-                        );
-                    });
-                }
-
-                setFilteredCountries(result);
-            } catch (err) {
-                setError('Error applying filters. Please try again.');
-                console.error(err);
-            } finally {
-                setLoading(false);
+            // Apply search if provided
+            if (search) {
+                result = await searchCountriesByName(search);
             }
-        };
 
-        // Only run filter if we have countries loaded
-        if (countries.length > 0) {
-            applyFilters();
+            // Apply region filter if selected
+            if (region && result.length > 0) {
+                result = result.filter(country => country.region === region);
+            }
+
+            // Apply language filter if selected
+            if (language && result.length > 0) {
+                result = result.filter(country => {
+                    if (!country.languages) return false;
+                    return Object.values(country.languages).some(
+                        lang => lang === language
+                    );
+                });
+            }
+
+            setFilteredCountries(result);
+        } catch (err) {
+            setError('Error applying filters. Please try again.');
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-    }, [searchTerm, selectedRegion, selectedLanguage, countries]);
+    }, [countries]);
+
+    // Use the debounced search term for API calls
+    useEffect(() => {
+        if (countries.length > 0) {
+            filterCountries(debouncedSearchTerm, selectedRegion, selectedLanguage);
+        }
+    }, [debouncedSearchTerm, selectedRegion, selectedLanguage, countries, filterCountries]);
 
     // Handle search input change
     const handleSearch = (value) => {
@@ -140,7 +158,7 @@ const Home = () => {
                 animate="visible"
                 variants={containerVariants}
             >
-                
+
                 {/* Hero Section */}
                 <HeroSection />
 

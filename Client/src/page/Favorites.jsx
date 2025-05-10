@@ -12,7 +12,7 @@ const Favorites = () => {
     };
 
     return (
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 pb-20">
             <h1 className="text-3xl font-bold mb-6">Your Favorite Countries</h1>
 
             {favorites.length === 0 ? (

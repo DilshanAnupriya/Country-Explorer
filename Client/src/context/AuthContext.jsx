@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     // Check if user is logged in ONLY on mount
     useEffect(() => {
         const initAuth = async () => {
-            const storedToken = localStorage.getItem('token');
+            const storedToken = sessionStorage.getItem('token');
             const storedFavorites = localStorage.getItem('favorites');
 
             if (storedToken) {
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
 
             if (response.data && response.data.token) {
                 const tokenValue = response.data.token;
-                localStorage.setItem('token', tokenValue);
+                sessionStorage.setItem('token', tokenValue);
                 setToken(tokenValue);
 
                 // Get user data and update state directly
@@ -121,7 +121,7 @@ export const AuthProvider = ({ children }) => {
 
     // Logout function - updates state directly
     const logout = () => {
-        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
         setToken(null);
         setCurrentUser(null);
         delete axios.defaults.headers.common['Authorization'];
